@@ -17,6 +17,7 @@ import RegisterBusiness, { registerBusinessLoader } from './pages/register_busin
 import UpdateAppoinBusiness, { UpdateAppoinLoader } from './pages/appoinment/Update_appoin_business.jsx';
 import ViewBusiness, { ViewBusinessLoader } from './pages/business/View_business.jsx';
 import UpdateSpace, {UpdateSpaceLoader} from './pages/register_business/UpdateSpace.jsx';
+import ViewUpdateUser from './pages/user/View_update_user.jsx';
 // Actions
 import { logoutAction } from "./actions/logout.js";
 
@@ -82,6 +83,12 @@ const router = createBrowserRouter([
         path: "viewBusiness",
         element: <ViewBusiness />,
         loader: ViewBusinessLoader,
+        /*action: expensesAction, */
+        errorElement: <Error />
+      },
+      {
+        path: "viewUpdateUser",
+        element: <ViewUpdateUser />,
         /*action: expensesAction, */
         errorElement: <Error />
       },

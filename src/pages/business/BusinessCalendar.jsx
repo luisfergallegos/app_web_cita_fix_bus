@@ -270,7 +270,9 @@ export default function BusinessCalendar() {
                 estatus: '0',
                 dorsl: empresa?.DORSL || '',
                 for_who: isRegistered ? 'Usr' : 'Bus',
-                bus_spaces_id: space.BUS_SPACES_ID,
+                bus_spaces_id: space.BUS_SPACES_ID === 'general'
+                    ? null
+                    : space.BUS_SPACES_ID,
                 name_space: space.ALIAS || space.NAME_SPACE || ''
             };
             const response = await fetch(`${urlApi.endsWith('/') ? urlApi : urlApi + '/'}${isRegistered ? 'appoin' : 'appoinW'}`, {
@@ -375,32 +377,59 @@ export default function BusinessCalendar() {
             try {
                 const spacesResult = await getJSON(apiUrl(urlApi, 'spaceBusinessId', { bussiness_id: businessId }), signal);
                 const activeSpaces = normalizeResponse(spacesResult, 'spaceBusinessId').filter(s => Number(s.IS_ACTIVE) === 1);
-                const results = await Promise.allSettled(activeSpaces.map(async space => {
-                    const params = { bussiness_id: businessId, busSpacesId: space.BUS_SPACES_ID };
+                const calendarSpaces = activeSpaces.length > 0
+                    ? activeSpaces
+                    : [{
+                        BUS_SPACES_ID: 'general',
+                        ALIAS: 'Agenda general',
+                        NAME_SPACE: 'Negocio',
+                        IS_ACTIVE: 1
+                    }];
+                const results = await Promise.allSettled(calendarSpaces.map(async space => {
+                    const isGeneral = space.BUS_SPACES_ID === 'general';
+                    const params = {
+                        bussiness_id: businessId,
+                        ...(!isGeneral && {
+                            busSpacesId: space.BUS_SPACES_ID
+                        })
+                    };
 
                     const [schedule, availability, excluded, appointments] =
                         await Promise.all([
-                            getScheduleWithFallback(
-                                urlApi,
-                                businessId,
-                                space.BUS_SPACES_ID,
-                                signal
-                            ),
 
+                            // Horario del negocio o del espacio
+                            isGeneral
+                                ? getOptionalData(
+                                    apiUrl(urlApi, 'schedule', {
+                                        bussinessId: businessId
+                                    }),
+                                    signal
+                                )
+                                : getScheduleWithFallback(
+                                    urlApi,
+                                    businessId,
+                                    space.BUS_SPACES_ID,
+                                    signal
+                                ),
+
+                            // Disponibilidad
                             getOptionalData(
                                 apiUrl(urlApi, 'appoinBussDate', params),
                                 signal
                             ),
 
+                            // Días excluidos
                             getOptionalData(
                                 apiUrl(urlApi, 'appoinBussDateDays', params),
                                 signal
                             ),
 
+                            // Citas registradas
                             getOptionalData(
                                 apiUrl(urlApi, 'appoinBussiness', params),
                                 signal
                             )
+
                         ]);
 
                     return [
@@ -415,7 +444,7 @@ export default function BusinessCalendar() {
                 }));
                 if (signal.aborted) return;
                 const successful = results.filter(r => r.status === 'fulfilled').map(r => r.value);
-                setSpaces(activeSpaces);
+                setSpaces(calendarSpaces);
                 setSpaceData(Object.fromEntries(successful));
                 results.forEach((result, index) => {
                     if (result.status === 'rejected') {
@@ -768,7 +797,7 @@ export default function BusinessCalendar() {
                             </select>
 
                         </label>
-                        
+
                     </div>
                     <div className="mb-4 flex flex-wrap items-center gap-3">
 

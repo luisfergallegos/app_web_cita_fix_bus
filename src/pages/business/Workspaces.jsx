@@ -102,6 +102,9 @@ export default function Workspaces() {
     };
 
     useEffect(() => {
+        if (sCorreo == null && sPassword == null) {
+            navigate("/");
+        }
 
         const controller = new AbortController();
 
@@ -258,12 +261,12 @@ export default function Workspaces() {
                                     className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:border-orange-400 hover:shadow-md"
                                 >
                                     <div>
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
 
                                             {/* Logotipo de la empresa */}
                                             <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100">
 
-                                                {empresa.PHOTO_DORSL == null ? (
+                                                {!empresa.PHOTO_DORSL?.data?.length ? (
                                                     <BuildingOfficeIcon className="h-8 w-8 text-slate-400" />
                                                 ) : (
                                                     <img
@@ -277,21 +280,20 @@ export default function Workspaces() {
                                                 )}
 
                                             </div>
-
                                             {/* Información de la empresa */}
-                                            <div className="min-w-0">
-                                                <h3 className="truncate text-lg font-bold text-slate-900">
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="break-words text-sm font-bold leading-snug text-slate-900 sm:text-lg">
                                                     {empresa.DORSL}
                                                 </h3>
 
-                                                <p className="mt-1 text-sm text-slate-500">
+                                                <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                                                     Propietario
                                                 </p>
                                             </div>
 
                                         </div>
                                     </div>
-                                    <ArrowRightIcon className="h-5 w-5 text-orange-500" />
+                                    <ArrowRightIcon className="h-5 w-5 shrink-0 text-orange-500" />
                                 </button>
                             </section>
                         )}

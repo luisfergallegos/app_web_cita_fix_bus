@@ -1,29 +1,16 @@
 // rrd imports
-import { useLoaderData } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 // helper funtions
 import { fetchData } from "../Wrapper.js";
 // components
-// import { Sidebar } from '../components/Sidebar.jsx';
-import { XMarkIcon as CloseIcon } from '@heroicons/react/24/solid';
-
-// import './Main.css';
-import Navbar from "../components/Navbar.jsx";
 import NavbarBus from "../components/NavbarBus.jsx";
 
-// loader
-/* export function mainLoader() {
-  const sCorreo = fetchData("correo");
-  const sPassword = fetchData("pwd");
-  return { sCorreo, sPassword };
-} */
 
 function Main() {
   // const { sCorreo, sPassword } = useLoaderData();
   // 🔐 Auth state (reactivo)
   const [isLogged, setIsLogged] = useState(false);
-  // const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // 📱 Detector de móvil
     const [isMobileBrowser, setIsMobileBrowser] = useState(false);
@@ -55,7 +42,7 @@ function Main() {
         <div className="relative">
 
           {/* 📱 Banner */}
-          {isMobileBrowser && showMobileBanner && (
+          {/* {isMobileBrowser && showMobileBanner && (
             <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md bg-white shadow-xl rounded-2xl p-4 flex items-center justify-between z-50 animate-fade-in">
               <div>
                 <p className="font-semibold text-gray-900">
@@ -86,7 +73,7 @@ function Main() {
                 </button>
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Navbar */}
           <NavbarBus />
