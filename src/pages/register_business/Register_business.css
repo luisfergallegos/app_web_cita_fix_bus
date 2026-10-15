@@ -1,0 +1,140 @@
+.RegisterBusinessContainer{
+    height: 100vh;
+    background: white;
+    color: black;
+}
+
+.container {
+    max-width: 700px;
+    width: 100%;
+    padding: 25px 30px;
+    background: #fc6500;
+    border-radius: 5px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.container .title {
+    font-size: 25px;
+    font-weight: 500;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+
+    span {
+        font-size: 14px;
+        margin-left: 10px;
+        color: #be4d04;
+    }
+}
+
+.container .registerForm {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 10px 12px 0;
+    background: #2c2c2c;
+}
+
+.registerForm .registerForm-group {
+    margin: 8px 10px;
+    margin-bottom: 15px;
+    width: calc(100%/2 - 20px);
+}
+
+.registerForm-group input {
+    height: 40px;
+    width: 100%;
+    outline: none;
+    border-radius: 5px;
+    border: 1px solid #2c2c2c;
+    padding-left: 10px;
+    border-bottom-width: 2px;
+    transition: all 0.3s ease;
+
+}
+
+.registerForm-group .--placeholder::placeholder {
+    color: white;
+    opacity: 0.5
+}
+
+.registerForm-group label {
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: start;
+}
+
+.registerForm-group .errorlabel {
+    color: red;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.registerForm-group .sublabel {
+    margin-left: 230px;
+    color: goldenrod;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.registerForm .registerForm-button {
+    width: 100%;
+    height: 40px;
+    margin: 20px 10px;
+}
+
+.registerForm .registerForm-button button {
+    width: 100%;
+    height: 100%;
+    outline: none;
+    cursor: pointer;
+    background: #fc6500;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    border-radius: 5px;
+    
+}
+
+.registerForm .registerForm-button button:hover{
+    /* background: #fff;
+    color: #fc6500; */
+    transform: scale(0.95);
+}
+
+.AddressForm-group--dasentas {
+    display: grid;
+    position: absolute;
+    color: var(--eighth);
+    font-size: 12px;
+    background: gray;
+    width: 18%;
+}
+
+@media(max-width: 584px) {
+    .container{
+        max-width: 100%;
+    }    
+    .registerForm .registerForm-group {
+        margin-bottom: 15px;
+        width: 100%;
+    }
+    .container .registerForm{
+        max-height: 400px;
+        overflow-y: scroll;
+    } 
+
+    .container .registerForm::-webkit-scrollbar{
+        width: 0;
+    }
+
+    .registerForm .registerForm-button {
+        margin: 20px 10px;
+    }
+}
