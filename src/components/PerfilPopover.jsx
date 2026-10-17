@@ -49,10 +49,10 @@ export default function PerfilPopover() {
                 </h3>
             </div>
             <div className="border-t">
-                <div className="flex items-center justify-center w-full py-3 hover:bg-gray-100 text-green-500 font-semibold">
-                    <ArrowRightStartOnRectangleIcon className='w-5 h-5 text-green-600' />
+                <div className="flex items-center justify-center w-full py-3 hover:bg-gray-100 text-orange-500 font-semibold">
+                    <ArrowRightStartOnRectangleIcon className='w-5 h-5 text-orange-600' />
                     <Form method="post" action="/logout">
-                        <button type="submit" className="ml-4 text-green-500 rounded-md">
+                        <button type="submit" className="ml-4 text-orange-500 rounded-md">
                             Cerrar sesión
                         </button>
                     </Form>

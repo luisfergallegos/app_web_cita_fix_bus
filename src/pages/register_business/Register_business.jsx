@@ -277,6 +277,7 @@ export function RegisterBusiness() {
         }
         fData();
     }, []);
+    
     if (loading) {
         return <Loaging />;
     }

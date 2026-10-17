@@ -12,10 +12,22 @@ import PerfilPopover from './PerfilPopover.jsx';
 
 
 export function NavbarBus() {
+    const location = useLocation();
     const [showPerfilPopover, setShowPerfilPopover] = useState(false);
+    const [businessId, setBusinessId] = useState(() => {
+        const stored = JSON.parse(
+            localStorage.getItem("homeBusiness") || "null"
+        );
+
+        return stored?.businessId ?? '';
+    });
 
     useEffect(() => {
         setShowPerfilPopover(false);
+        const stored = JSON.parse(
+            localStorage.getItem("homeBusiness") || "null"
+        );
+        setBusinessId(stored?.businessId ?? '');
     }, [location.pathname]);
 
     return (
@@ -32,17 +44,6 @@ export function NavbarBus() {
                 {/* Menú desktop */}
                 <div className="hidden lg:flex items-center gap-6">
                     <NavLink
-                        to="/home"
-                        className={({ isActive }) =>
-                            `relative  ${isActive
-                                ? 'text-orange-500'
-                                : 'text-gray-700'
-                            }`}
-                    >
-                        <HomeIcon className="w-6 h-6" />
-                    </NavLink>
-
-                    <NavLink
                         to="/workspaces"
                         className={({ isActive }) =>
                             `relative  ${isActive
@@ -50,20 +51,34 @@ export function NavbarBus() {
                                 : 'text-gray-700'
                             }`}
                     >
-                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
-                            <BuildingOffice2Icon className="w-6 h-6" />
-                        </div>
+                        <BuildingOffice2Icon className="w-6 h-6" />
 
                         {/* <span className="font-medium text-gray-800">
                             Explorar mis espacios
                         </span> */}
                     </NavLink>
 
+                    {businessId !== '' && businessId != null && (
+                        <NavLink
+                            to="/home"
+                            className={({ isActive }) =>
+                                `relative ${isActive
+                                    ? 'text-orange-500'
+                                    : 'text-gray-700'
+                                }`
+                            }
+                        >
+                            <HomeIcon className="w-6 h-6" />
+                        </NavLink>
+                    )}
+
+
+
                     <div className="relative">
                         <button
                             onClick={() => setShowPerfilPopover(!showPerfilPopover)}
-                            className={`flex items-center gap-3 hover:text-green-500 transition ${showPerfilPopover
-                                ? "text-green-500" : "text-gray-700"}`
+                            className={`flex items-center gap-3 hover:text-orange-500 transition ${showPerfilPopover
+                                ? "text-orange-500" : "text-gray-700"}`
                             }
                         >
                             <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
@@ -84,20 +99,7 @@ export function NavbarBus() {
             {/* Menú móvil */}
             <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50">
 
-                <div className="grid grid-cols-4 h-16">
-
-                    <NavLink
-                        to="/home"
-                        className={({ isActive }) =>
-                            `flex flex-col items-center justify-center ${isActive
-                                ? 'text-orange-500'
-                                : 'text-gray-400'
-                            }`
-                        }
-                    >
-                        <HomeIcon className="w-6 h-6" />
-                        <span className="text-xs">Inicio</span>
-                    </NavLink>
+                <div className="grid grid-cols-3 h-16">
 
                     {/* <NavLink
                         to="/findUser"
@@ -131,11 +133,24 @@ export function NavbarBus() {
                         </span>
                     </NavLink>
 
+                    {businessId !== '' && businessId != null && (<NavLink
+                        to="/home"
+                        className={({ isActive }) =>
+                            `flex flex-col items-center justify-center ${isActive
+                                ? 'text-orange-500'
+                                : 'text-gray-400'
+                            }`
+                        }
+                    >
+                        <HomeIcon className="w-6 h-6" />
+                        <span className="text-xs">Inicio</span>
+                    </NavLink>)}
+
                     <NavLink
                         to="/viewUpdateUser"
                         className={({ isActive }) =>
                             `flex flex-col items-center justify-center ${isActive
-                                ? 'text-green-500'
+                                ? 'text-orange-500'
                                 : 'text-gray-400'
                             }`
                         }

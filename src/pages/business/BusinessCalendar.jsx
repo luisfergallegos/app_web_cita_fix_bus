@@ -162,9 +162,9 @@ async function getScheduleWithFallback(
 
 export default function BusinessCalendar() {
     const navigate = useNavigate();
-    const stored = JSON.parse(localStorage.getItem("homeBusiness"));
-    const businessId = stored.businessId ?? '';
-    const businessAdmin = stored.tipo;
+    const stored = JSON.parse(localStorage.getItem("homeBusiness") || "null");
+    const businessId = stored?.businessId ?? '';
+    const businessAdmin = stored?.tipo ?? false;
     const [empresa, SetEmpresa] = useState([]);
     const [date, setDate] = useState(() => localISO(new Date()));
     const [view, setView] = useState('day');
@@ -199,6 +199,12 @@ export default function BusinessCalendar() {
             : registeredUsers.filter(user => Number(user.FAVORITE) === 1);
         return list.slice(0, 40);
     }, [registeredUsers, registeredSearch]);
+
+    useEffect(() => {
+        if (businessId === '' || businessId == null) {
+            navigate("/workspaces", { replace: true });
+        }
+    }, [businessId, navigate]);
 
     useEffect(() => {
         if (!newAppointment || customerMode !== 'registered') return;
@@ -637,7 +643,7 @@ export default function BusinessCalendar() {
 
     const allWeekAppointments = weekDates.flatMap(day => visibleSpaces.flatMap(space => getAppointments(space.BUS_SPACES_ID, day).map(appointment => ({ appointment, space, day }))));
 
-    if (loading) {
+    if (!businessId || loading) {
         return <Loaging />;
     }
 

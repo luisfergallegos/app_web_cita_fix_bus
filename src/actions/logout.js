@@ -13,6 +13,7 @@ export async function logoutAction(){
     deleteItem({ key: "pwd"});
     deleteItem({ key: "dorsl"});
     deleteItem({ key: "UserCitaFix"});
+    deleteItem({ key: "homeBusiness"});
     // localStorage.removeItem("profileMode");
     window.dispatchEvent(new Event("authChanged"));
     // localStorage.setItem("hasSeenSearchIndicator", JSON.stringify("Indicator"));

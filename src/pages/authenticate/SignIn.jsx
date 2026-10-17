@@ -164,7 +164,7 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-600 to-orange-800 flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center px-4 relative overflow-hidden">
       {/* Alerta centrada */}
       {showAlert && (
         <div className="absolute top-6 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg text-sm animate-bounce z-50">
@@ -241,7 +241,7 @@ export function Login() {
             </p>
             <button
               type="submit"
-              className="w-full py-3 bg-orange-500 text-white font-semibold rounded-md shadow-md hover:bg-orange-600 transition duration-300"
+              className="w-full py-3 bg-gray-500 text-white font-semibold rounded-md shadow-md hover:bg-orange-600 transition duration-300"
             >
               Iniciar sesión
             </button>
@@ -259,7 +259,7 @@ export function Login() {
         </div>
 
         {/* Panel derecho (visual) */}
-        <div className="hidden md:flex md:w-1/2 items-center justify-center bg-orange-400 text-white p-10 flex-col text-center">
+        <div className="hidden md:flex md:w-1/2 items-center justify-center bg-gray-300 text-white p-10 flex-col text-center">
           <img src={Logo} alt="Planners Day" width={300} />
           <h2 className="text-2xl font-bold mb-4">¡Hola otra vez!</h2>
           <p className="text-sm">Ingresa tus credenciales para continuar</p>
