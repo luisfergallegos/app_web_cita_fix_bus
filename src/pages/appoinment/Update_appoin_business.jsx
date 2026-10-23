@@ -233,20 +233,45 @@ export function UpdateAppoinBusiness() {
             try {
                 const response = await fetch(`${urlApi}appoin`, options);
                 const json = await response.json();
-                if (json['sucess'] == false) {
-                    setbAcceder(true);
-                    getDaysInactive();
-                    toast.error(`Ya no se encuentra disponible Fecha : ${_selectedDate} Hora : ${selectedTime} Corríjalo e inténtelo nuevamente.`);
-                    // console.log(`Error al guardar cita.`);
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                else {
+                // =====================================
+                // 1. Reagendamiento correcto
+                // =====================================
+                if (response.ok && json.sucess === true) {
+                    if (json.data?.updated === false) {
+                        toast.info("La cita ya contiene esta información.");
+                    } else {
+                        toast.success("Cita actualizada correctamente.");
+                    }
+                    setIsOpenU(false);
                     navigate("/home");
+                    return;
                 }
+                // =====================================
+                // 2. Horario ocupado
+                // =====================================
+                if (response.status === 409 || (response.status === 200 && json.sucess === false && Number(json.data) > 0)) {
+                    toast.error(`Ya no se encuentra disponible Fecha: ${_selectedDate} Hora: ${selectedTime}.`);
+                    getDaysInactive();
+                    return;
+                }
+                // =====================================
+                // 3. Cita no encontrada
+                // =====================================
+                if (response.status === 404) {
+                    toast.error(json.message || json.json || "No fue posible encontrar la cita.");
+                    return;
+                }
+                // =====================================
+                // 4. Otros errores del API
+                // =====================================
+                console.error("Error actualizando cita:", json);
+                toast.error(json.message || json.json || "No fue posible actualizar la cita.");
             }
-            catch (e) {
+            catch (error) {
+                console.error("Error de conexión:", error);
+                toast.error("Error de conexión. Verifica si la cita se actualizó antes de volver a intentarlo.");
+            } finally {
                 setbAcceder(true);
-                return;
             }
         }
 
@@ -261,18 +286,39 @@ export function UpdateAppoinBusiness() {
         try {
             const response = await fetch(`${urlApi}appoin?apoinment_id=${cita.APOINMENT_ID}&usernotification_id=${cita.USER_ID}&dorsl=${cita.DORSL}&for_who=Usr`, options);
             const json = await response.json();
-            if (json['sucess'] == false) {
-                setIsOpen(false);
-                console.log(`Error al cancelar cita.`);
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            else {
+            // ====================================
+            // 1. Cancelación correcta
+            // ====================================
+            if (response.ok && json.sucess === true) {
+                toast.success("Cita cancelada correctamente.");
                 navigate("/home");
+                return;
             }
-        }
-        catch (e) {
+            // ====================================
+            // 2. Cita ya cancelada
+            // ====================================
+            if (response.status === 409) {
+                toast.info( typeof json.data === "string" ? json.data : "Esta cita ya se encontraba cancelada." );
+                navigate("/home");
+                return;
+            }
+            // ====================================
+            // 3. Cita no encontrada
+            // ====================================
+            if (response.status === 404) {
+                toast.error("La cita ya no existe.");
+                return;
+            }
+            // ====================================
+            // 4. Otros errores
+            // ====================================
+            console.error("Error cancelando cita:", json);
+            toast.error( json.message || json.json || (typeof json.data === "string" ? json.data : null) || "No fue posible cancelar la cita.");
+        } catch (error) {
+            console.error("Error de conexión:", error);
+            toast.error("Error de conexión. Verifica el estado de la cita antes de volver a intentarlo.");
+        } finally {
             setIsOpen(false);
-            return;
         }
     };
 
