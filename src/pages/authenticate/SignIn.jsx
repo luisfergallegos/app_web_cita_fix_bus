@@ -52,6 +52,7 @@ export function Login() {
     setLoading(true);
     var options = {
       method: 'GET',
+      credentials: "include",
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

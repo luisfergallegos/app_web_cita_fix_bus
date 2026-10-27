@@ -475,6 +475,82 @@ export default function BusinessCalendar() {
         return () => controller.abort();
     }, [businessId, urlApi, refreshIndex]);
 
+
+    // Escuchar nuevas citas anónimas en tiempo real
+    useEffect(() => {
+        if (!businessId || !urlApi) return;
+
+        const eventSource = new EventSource(
+            apiUrl(urlApi, 'notifications/stream', {
+                businessId
+            }),
+            { withCredentials: true }
+        );
+
+        const handleConnected = (event) => {
+            console.log(
+                "SSE conectado:",
+                JSON.parse(event.data)
+            );
+        };
+
+        const handleNewAppointment = (event) => {
+            try {
+                const cita = JSON.parse(event.data);
+                toast.info(
+                    `🔔 Nueva cita de ${cita.nombre || 'un cliente'}`
+                    + ` · ${cita.appointment_date}`
+                    + ` · ${String(cita.appointment_time).slice(0, 5)}`,
+                    {
+                        position: "top-right",
+                        autoClose: 6000
+                    }
+                );
+
+                // Actualizar automáticamente el calendario
+                setRefreshIndex(prev => prev + 1);
+
+            } catch (error) {
+                console.error(
+                    "Error procesando notificación SSE:",
+                    error
+                );
+            }
+        };
+
+        eventSource.addEventListener(
+            "connected",
+            handleConnected
+        );
+
+        eventSource.addEventListener(
+            "new_appointment",
+            handleNewAppointment
+        );
+
+        eventSource.onerror = () => {
+            console.warn(
+                "SSE desconectado. Esperando reconexión..."
+            );
+        };
+
+        return () => {
+            eventSource.removeEventListener(
+                "connected",
+                handleConnected
+            );
+
+            eventSource.removeEventListener(
+                "new_appointment",
+                handleNewAppointment
+            );
+
+            eventSource.close();
+        };
+
+    }, [businessId, urlApi]);
+
+
     const visibleSpaces = useMemo(() => spaces.filter(s => selectedSpace === 'all' || String(s.BUS_SPACES_ID) === selectedSpace), [spaces, selectedSpace]);
     const weekStart = startOfWeek(date);
     const weekDates = Array.from({ length: 7 }, (_, index) => addDays(weekStart, index));
