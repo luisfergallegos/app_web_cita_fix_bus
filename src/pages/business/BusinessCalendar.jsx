@@ -275,7 +275,7 @@ export default function BusinessCalendar() {
                 message: customerComment.trim(),
                 estatus: '0',
                 dorsl: empresa?.DORSL || '',
-                for_who: isRegistered ? 'Usr' : 'Bus',
+                for_who: 'Usr',
                 bus_spaces_id: space.BUS_SPACES_ID === 'general'
                     ? null
                     : space.BUS_SPACES_ID,
@@ -498,7 +498,7 @@ export default function BusinessCalendar() {
             try {
                 const cita = JSON.parse(event.data);
                 toast.info(
-                    `🔔 Nueva cita de ${cita.nombre || 'un cliente'}`
+                    `${cita.titulo} de ${cita.nombre || 'un cliente'}`
                     + ` · ${cita.appointment_date}`
                     + ` · ${String(cita.appointment_time).slice(0, 5)}`,
                     {
