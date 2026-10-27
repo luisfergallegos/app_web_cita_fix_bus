@@ -1,23 +1,36 @@
-// rrd imports
+
 import { redirect } from "react-router-dom";
-
-// helers 
 import { deleteItem } from "../Wrapper.js";
-
-// Library
 import { toast } from "react-toastify";
+import { urlApi } from "../styles/Constants.jsx";
 
-export async function logoutAction(){
-    // delete tha user
-    deleteItem({ key: "correo"});
-    deleteItem({ key: "pwd"});
-    deleteItem({ key: "dorsl"});
-    deleteItem({ key: "UserCitaFix"});
-    deleteItem({ key: "homeBusiness"});
-    // localStorage.removeItem("profileMode");
+export async function logoutAction() {
+
+    // 1. Eliminar cookie JWT del servidor
+    try {
+        const response = await fetch(`${urlApi}auth/logout`, {
+            method: "POST",
+            credentials: "include"
+        });
+
+        if (!response.ok) {
+            console.warn("No se pudo cerrar la sesión en el servidor");
+        }
+    } catch (error) {
+        console.error("Error cerrando sesión:", error);
+    }
+
+    // 2. Limpiar sesión local
+    deleteItem({ key: "correo" });
+    deleteItem({ key: "pwd" });
+    deleteItem({ key: "dorsl" });
+    deleteItem({ key: "UserCitaFix" });
+    deleteItem({ key: "homeBusiness" });
+
+    // 3. Actualizar estado de autenticación
     window.dispatchEvent(new Event("authChanged"));
-    // localStorage.setItem("hasSeenSearchIndicator", JSON.stringify("Indicator"));
-    toast.success("Regresa pronto!");
-    // return redirect
+
+    toast.success("¡Regresa pronto!");
+
     return redirect("/");
 }

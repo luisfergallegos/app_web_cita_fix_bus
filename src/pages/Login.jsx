@@ -1,121 +1,157 @@
-// rrd imports
-import { useLoaderData } from "react-router-dom";
+
 import { useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 
-import SingIn from './authenticate/SignIn.jsx';
-// assents
-import Logo from "../assets/menu.png";
+import SingIn from "./authenticate/SignIn.jsx";
+import Workspaces from "./business/Workspaces.jsx";
+
 import { urlApi } from "../styles/Constants.jsx";
-
-// Routes
-// import Home from "../pages/Home.jsx";
-// import FindBusiness from "../pages/business/Find_business.jsx";
-// import HomeBusiness from "../pages/business/Home_business.jsx";
-import Workspaces from '../pages/business/Workspaces.jsx';
-
-// helper funtions
 import { fetchData } from "../Wrapper.js";
 
-// loader
+// Loader: conserva su exportación porque App.jsx lo utiliza
 export function loginFormLoader() {
-    const sCorreo = fetchData("correo");
-    const sPassword = fetchData("pwd");
-    const slastSession = fetchData("lastsession");
-    const sUserCitaFix = fetchData("UserCitaFix") ?? [];
-    const userId = sUserCitaFix['USER_ID'] ?? "";
-    
-    return { sCorreo, sPassword, slastSession, userId};
+    return null;
 }
 
 export function LoginForm() {
-    const { sCorreo, sPassword, slastSession, userId } = useLoaderData();
+
+    // Estado JWT validado por Main.jsx
+    const { isLogged } = useOutletContext();
 
     useEffect(() => {
-        const fData = async () => {         
-            var Aux = new Date();
-            var dateFormat = Aux.getMonth() + 1;
-            var _today = `${Aux.getFullYear()}-${('0' + dateFormat).slice(-2)}-${Aux.getDate()}`;
-            if (_today != slastSession) {
-                if (sCorreo) {
-                    //Solicitar por GET
-                    var options = {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                    }
-                    try {
-                        const response = await fetch(`${urlApi}userLastSession?email=${sCorreo}`, options);
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        const json = await response.json();
-                        var Aux = new Date();
-                        var dateFormat = Aux.getMonth() + 1;
-                        var _today = `${Aux.getFullYear()}-${('0' + dateFormat).slice(-2)}-${Aux.getDate()}`;
-                        localStorage.setItem("lastsession", JSON.stringify(_today));
 
-                    }
-                    catch (e) {
-                        return;
-                    }
-                }
-            }
-            //Solicitar por GET
-            var options = {
-                method: 'GET',
+        // No consultar datos de usuario sin sesión válida
+        if (!isLogged) return;
+
+        const controller = new AbortController();
+
+        const fData = async () => {
+
+            // Obtener datos actuales después de validar la sesión
+            const sCorreo = fetchData("correo");
+            const slastSession = fetchData("lastsession");
+            const sUserCitaFix = fetchData("UserCitaFix") ?? [];
+            const userId = sUserCitaFix.USER_ID ?? "";
+
+            if (!sCorreo || !userId) return;
+
+            const options = {
+                method: "GET",
+                credentials: "include",
+                signal: controller.signal,
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    Accept: "application/json"
                 }
-            }
-            try {
-                const response = await fetch(`${urlApi}notification?userid=${userId}`, options);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const json = await response.json();
-                let Aux = json['data'];
-                //Solicitar por GET
-                var options = {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                }
-                try {
-                    const response = await fetch(`${urlApi}usrInfCol?user_id=${userId}`, options);
-                    if (response.status == 200) {
-                        const json = await response.json();
-                        localStorage.setItem("numNot", json['data'].filter(e => e.CONFIRM == 0).length + Aux.length);
-                    } else {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                }
-                catch (e) {
-                    return;
-                }
-            }
-            catch (e) {
-                return;
-            }
-            
-        };
-        fData();
-    }, []);
+            };
 
-    return (
-        <>
-            {sCorreo && sPassword ? <Workspaces /> :
-                <div id="containerLogin">
-                    <div className="containerLogin">
-                        <SingIn />
-                    </div>
-                </div>
+            // =====================================
+            // 1. Última sesión
+            // =====================================
+
+            const now = new Date();
+
+            const today = [
+                now.getFullYear(),
+                String(now.getMonth() + 1).padStart(2, "0"),
+                String(now.getDate()).padStart(2, "0")
+            ].join("-");
+
+            if (today !== slastSession) {
+
+                try {
+                    const response = await fetch(
+                        `${urlApi}userLastSession?email=${encodeURIComponent(sCorreo)}`,
+                        options
+                    );
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    localStorage.setItem(
+                        "lastsession",
+                        JSON.stringify(today)
+                    );
+
+                } catch (error) {
+                    if (error.name !== "AbortError") {
+                        console.error("Error actualizando última sesión:", error);
+                    }
+                }
             }
-        </>
+
+            // =====================================
+            // 2. Notificaciones
+            // =====================================
+
+            try {
+
+                const response = await fetch(
+                    `${urlApi}notification?userid=${encodeURIComponent(userId)}`,
+                    options
+                );
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const json = await response.json();
+
+                const notificaciones = Array.isArray(json.data)
+                    ? json.data
+                    : [];
+
+                // =====================================
+                // 3. Invitaciones de colaboradores
+                // =====================================
+
+                const responseCol = await fetch(
+                    `${urlApi}usrInfCol?user_id=${encodeURIComponent(userId)}`,
+                    options
+                );
+
+                if (!responseCol.ok) {
+                    throw new Error(`HTTP ${responseCol.status}`);
+                }
+
+                const jsonCol = await responseCol.json();
+
+                const colaboradores = Array.isArray(jsonCol.data)
+                    ? jsonCol.data
+                    : [];
+
+                const pendientes = colaboradores.filter(
+                    item => Number(item.CONFIRM) === 0
+                ).length;
+
+                localStorage.setItem(
+                    "numNot",
+                    String(pendientes + notificaciones.length)
+                );
+
+            } catch (error) {
+                if (error.name !== "AbortError") {
+                    console.error("Error consultando notificaciones:", error);
+                }
+            }
+        };
+
+        fData();
+
+        return () => {
+            controller.abort();
+        };
+
+    }, [isLogged]);
+
+    return isLogged ? (
+        <Workspaces />
+    ) : (
+        <div id="containerLogin">
+            <div className="containerLogin">
+                <SingIn />
+            </div>
+        </div>
     );
 }
 

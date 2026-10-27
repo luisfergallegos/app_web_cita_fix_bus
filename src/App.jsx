@@ -9,7 +9,7 @@ import { ProfileProvider } from "./ProfileContext.jsx";
 // Routers
 import ViewUpdateBusiness, { viewUpdateBusinessLoader } from "./pages/register_business/View_update_business.jsx";
 import LoginForm, { loginFormLoader } from "./pages/Login";
-import SingIn, {loginLoader} from './pages/authenticate/SignIn.jsx';
+import SingIn from './pages/authenticate/SignIn.jsx';
 import Error from "./pages/Error.jsx";
 import BusinessCalendar from './pages/business/BusinessCalendar.jsx';
 import Workspaces from './pages/business/Workspaces.jsx';
@@ -37,7 +37,7 @@ const router = createBrowserRouter([
       {
         path: "login",
         element: <SingIn />,
-        loader: loginLoader,
+        // loader: loginLoader,
         /* action: findBusinessAction, */
         errorElement: <Error />
       },

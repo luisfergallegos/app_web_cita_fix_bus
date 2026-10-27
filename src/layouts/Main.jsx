@@ -1,85 +1,97 @@
-// rrd imports
-import { Outlet } from "react-router-dom";
+
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-// helper funtions
-import { fetchData } from "../Wrapper.js";
-// components
+
+import { fetchData, deleteItem } from "../Wrapper.js";
+import { urlApi } from "../styles/Constants.jsx";
 import NavbarBus from "../components/NavbarBus.jsx";
 
-
 function Main() {
-  // const { sCorreo, sPassword } = useLoaderData();
-  // 🔐 Auth state (reactivo)
+  const location = useLocation();
+
   const [isLogged, setIsLogged] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
-  // 📱 Detector de móvil
-    const [isMobileBrowser, setIsMobileBrowser] = useState(false);
-    const [showMobileBanner, setShowMobileBanner] = useState(true);
+  const publicRoutes = ["/", "/login"];
+  const isPublicRoute = publicRoutes.includes(location.pathname);
 
-    useEffect(() => {
-        const isMobile =
-            /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-            window.innerWidth < 768;
+  useEffect(() => {
+    let active = true;
 
-        setIsMobileBrowser(isMobile);
-        const checkAuth = () => {
-          const correo = fetchData("correo");
-          const pwd = fetchData("pwd");
-          setIsLogged(!!correo && !!pwd);
-        };
-        // primera carga
-        checkAuth();
-        // escuchar cambios
-        window.addEventListener("authChanged", checkAuth);
-        return () => window.removeEventListener("authChanged", checkAuth);
-    }, []);
-  
+    const checkAuth = async () => {
+      setCheckingAuth(true);
+
+      const correo = fetchData("correo");
+
+      if (!correo) {
+        if (active) {
+          setIsLogged(false);
+          setCheckingAuth(false);
+        }
+        return;
+      }
+
+      try {
+        const response = await fetch(`${urlApi}auth/me`, {
+          method: "GET",
+          credentials: "include"
+        });
+
+        if (!active) return;
+
+        if (response.status === 401) {
+          deleteItem({ key: "correo" });
+          deleteItem({ key: "pwd" });
+          deleteItem({ key: "dorsl" });
+          deleteItem({ key: "UserCitaFix" });
+          deleteItem({ key: "homeBusiness" });
+
+          setIsLogged(false);
+        } else if (response.ok) {
+          setIsLogged(true);
+        } else {
+          console.error("Error validando sesión:", response.status);
+          setIsLogged(false);
+        }
+      } catch (error) {
+        console.error("Error de conexión:", error);
+        if (active) setIsLogged(false);
+      } finally {
+        if (active) setCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+
+    window.addEventListener("authChanged", checkAuth);
+
+    return () => {
+      active = false;
+      window.removeEventListener("authChanged", checkAuth);
+    };
+  }, []);
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Verificando sesión...
+      </div>
+    );
+  }
+
+  if (!isLogged && !isPublicRoute) {
+    return <Navigate to="/" replace />;
+  }
+
   return (
     <>
-      {!isLogged ? (
-        <Outlet />
-      ) : (
+      {isLogged ? (
         <div className="relative">
-
-          {/* 📱 Banner */}
-          {/* {isMobileBrowser && showMobileBanner && (
-            <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md bg-white shadow-xl rounded-2xl p-4 flex items-center justify-between z-50 animate-fade-in">
-              <div>
-                <p className="font-semibold text-gray-900">
-                  ¿Tienes nuestra app móvil?
-                </p>
-                <p className="text-sm text-gray-600 -mt-1">
-                  Descárgala para una mejor experiencia
-                </p>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <button
-                  className="bg-orange-600 text-white text-sm px-3 py-2 rounded-xl"
-                  onClick={() =>
-                    window.open(
-                      "https://play.google.com/store/apps/details?id=com.citafix.cita_fix"
-                    )
-                  }
-                >
-                  Descargar
-                </button>
-
-                <button
-                  onClick={() => setShowMobileBanner(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <CloseIcon className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          )} */}
-
-          {/* Navbar */}
           <NavbarBus />
-
-          <Outlet />
+          <Outlet context={{ isLogged }} />
         </div>
+      ) : (
+        <Outlet context={{ isLogged }} />
       )}
     </>
   );

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { urlApi } from '../../styles/Constants';
 import { toast } from "react-toastify";
-import { useNavigate, useLoaderData } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 // assents
 import Logo from "../../assets/menu.png";
 // helper funtions
@@ -14,14 +14,14 @@ import {
 } from "@heroicons/react/24/solid";
 import Loaging from '../../components/Loading.jsx';
 
-export function loginLoader() {
-  const sCorreo = fetchData("correo");
-  const sPassword = fetchData("pwd");
-  return { sCorreo, sPassword };
-}
+// export function loginLoader() {
+//   const sCorreo = fetchData("correo");
+//   const sPassword = fetchData("pwd");
+//   return { sCorreo, sPassword };
+// }
 
 export function Login() {
-  const { sCorreo, sPassword } = useLoaderData();
+  // const { sCorreo, sPassword } = useLoaderData();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showAlert, setShowAlert] = useState(false);
@@ -153,12 +153,12 @@ export function Login() {
 
   };
 
-  useEffect(() => {
-    // Redirección si no hay sesión
-    if (sCorreo || sPassword) {
-      navigate("/");
-    }
-  }, []);
+  // useEffect(() => {
+  //   // Redirección si no hay sesión
+  //   if (sCorreo || sPassword) {
+  //     navigate("/");
+  //   }
+  // }, []);
 
   if (loading) {
     return <Loaging />;
