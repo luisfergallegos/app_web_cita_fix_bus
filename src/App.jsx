@@ -20,6 +20,7 @@ import UpdateSpace, {UpdateSpaceLoader} from './pages/register_business/UpdateSp
 import ViewUpdateUser from './pages/user/View_update_user.jsx';
 // Actions
 import { logoutAction } from "./actions/logout.js";
+import Ubicacion from './pages/business/Ubicacion.jsx';
 
 const router = createBrowserRouter([
   {
@@ -83,6 +84,12 @@ const router = createBrowserRouter([
         path: "viewBusiness",
         element: <ViewBusiness />,
         loader: ViewBusinessLoader,
+        /*action: expensesAction, */
+        errorElement: <Error />
+      },
+      {
+        path: "ubicacion/:id",
+        element: <Ubicacion />,
         /*action: expensesAction, */
         errorElement: <Error />
       },
